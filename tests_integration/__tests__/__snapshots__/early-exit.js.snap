@@ -58,6 +58,9 @@ Output options:
 
 Format options:
 
+  --align-object-properties
+                           Align object properties.
+                           Defaults to false.
   --arrow-parens <avoid|always>
                            Include parentheses around a sole arrow function parameter.
                            Defaults to avoid.
@@ -211,6 +214,9 @@ Output options:
 
 Format options:
 
+  --align-object-properties
+                           Align object properties.
+                           Defaults to false.
   --arrow-parens <avoid|always>
                            Include parentheses around a sole arrow function parameter.
                            Defaults to avoid.

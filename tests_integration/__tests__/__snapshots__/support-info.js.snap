@@ -611,7 +611,22 @@ exports[`API getSupportInfo() with version 1.16.0 -> undefined 1`] = `
       ],
       \\"Markdown\\": Array [
         \\"markdown\\",
-@@ -135,10 +138,11 @@
+@@ -60,10 +63,14 @@
+      \\"YAML\\": Array [
+        \\"yaml\\",
+      ],
+    },
+    \\"options\\": Object {
++     \\"alignObjectProperties\\": Object {
++       \\"default\\": false,
++       \\"type\\": \\"boolean\\",
++     },
+      \\"arrowParens\\": Object {
+        \\"choices\\": Array [
+          \\"avoid\\",
+          \\"always\\",
+        ],
+@@ -135,10 +142,11 @@
           \\"mdx\\",
           \\"vue\\",
           \\"yaml\\",
@@ -623,7 +638,7 @@ exports[`API getSupportInfo() with version 1.16.0 -> undefined 1`] = `
         \\"type\\": \\"choice\\",
       },
       \\"pluginSearchDirs\\": Object {
-@@ -165,10 +169,19 @@
+@@ -165,10 +173,19 @@
           \\"preserve\\",
         ],
         \\"default\\": \\"preserve\\",
@@ -1030,6 +1045,15 @@ exports[`CLI --support-info (stdout) 1`] = `
     }
   ],
   \\"options\\": [
+    {
+      \\"category\\": \\"JavaScript\\",
+      \\"default\\": false,
+      \\"description\\": \\"Align object properties.\\",
+      \\"name\\": \\"alignObjectProperties\\",
+      \\"pluginDefaults\\": {},
+      \\"since\\": \\"1.18.1\\",
+      \\"type\\": \\"boolean\\"
+    },
     {
       \\"category\\": \\"JavaScript\\",
       \\"choices\\": [
