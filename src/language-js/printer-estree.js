@@ -49,6 +49,11 @@ const {
   hasFlowShorthandAnnotationComment
 } = require("./utils");
 
+const {
+  locStart,
+  locEnd
+} = require("./loc.js")
+
 const needsQuoteProps = new WeakMap();
 
 const {
@@ -94,6 +99,54 @@ function shouldPrintComma(options, level) {
     default:
       return false;
   }
+}
+
+function getPropertyPadding(options, path) {
+  if (!options.alignObjectProperties) {
+    return "";
+  }
+
+  const n = path.getValue();
+  const type = n.type;
+
+  const parentNode = path.getParentNode();
+  const isPropertyKey =
+    (parentNode.type === "Property" || parentNode.type === "ObjectProperty") &&
+    parentNode.key === n;
+
+  if (!isPropertyKey) {
+    return "";
+  }
+
+  const parentObject = path.getParentNode(1);
+  const shouldBreak = hasNewlineInRange(
+    options.originalText,
+    locStart(parentObject),
+    locEnd(parentObject)
+  );
+
+  if (!shouldBreak) {
+    return "";
+  }
+
+  const nameLength = type === "Identifier"
+    ? n.name.length
+    : type === "NumericLiteral"
+        ? printNumber(n.extra.raw).length
+        : type === "StringLiteral" ? nodeStr(n, options).length : undefined;
+
+  if (nameLength === undefined) {
+    return "";
+  }
+
+  const properties = parentObject.properties;
+  const keys = properties.map(p => p.key);
+  const lengths = keys.map(k => k.end - k.start);
+  const maxLength = Math.max.apply(null, lengths);
+  const padLength = maxLength - nameLength + 1;
+  const padding = " ".repeat(padLength);
+
+  return padding;
 }
 
 function genericPrint(path, options, printPath, args) {
@@ -1443,9 +1496,9 @@ function printPathNoParens(path, options, print, args) {
       } else {
         let printedLeft;
         if (n.computed) {
-          printedLeft = concat(["[", path.call(print, "key"), "]"]);
+          printedLeft = concat(["[", path.call(print, "key"), "]", path.call(getPropertyPadding.bind(null, options), "key").slice(2)]);
         } else {
-          printedLeft = printPropertyKey(path, options, print);
+          printedLeft = concat([printPropertyKey(path, options, print), path.call(getPropertyPadding.bind(null, options), "key")]);
         }
         parts.push(
           printAssignment(
@@ -2330,9 +2383,17 @@ function printPathNoParens(path, options, print, args) {
         parts.push(variance);
       }
       if (n.computed) {
-        parts.push("[", path.call(print, "key"), "]");
+        parts.push(
+          "[",
+          path.call(print, "key"),
+          "]",
+          path.call(getPropertyPadding.bind(null, options), "key").slice(2)
+        );
       } else {
-        parts.push(printPropertyKey(path, options, print));
+        parts.push(
+          printPropertyKey(path, options, print),
+          path.call(getPropertyPadding.bind(null, options), "key")
+        );
       }
       parts.push(printOptionalToken(path));
       parts.push(printTypeAnnotation(path, options, print));

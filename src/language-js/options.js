@@ -6,6 +6,15 @@ const CATEGORY_JAVASCRIPT = "JavaScript";
 
 // format based on https://github.com/prettier/prettier/blob/master/src/main/core-options.js
 module.exports = {
+  alignObjectProperties: {
+    since: "1.8.0",
+    category: CATEGORY_JAVASCRIPT,
+    type: "boolean",
+    default: false,
+    description: "Align object properties.",
+    oppositeDescription:
+      "Align property colons in objects."
+  },
   arrowParens: {
     since: "1.9.0",
     category: CATEGORY_JAVASCRIPT,
