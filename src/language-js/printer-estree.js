@@ -130,7 +130,7 @@ function getPropertyPadding(options, path) {
   }
 
   const nameLength = type === "Identifier"
-    ? n.name.length
+    ? (n.name.length) // + (n.computed ? 2 : 0))
     : type === "NumericLiteral"
         ? printNumber(n.extra.raw).length
         : type === "StringLiteral" ? nodeStr(n, options).length : undefined;
@@ -140,13 +140,39 @@ function getPropertyPadding(options, path) {
   }
 
   const properties = parentObject.properties;
+
+  const index = properties.indexOf(parentNode);
+
   const keys = properties.map(p => p.key);
-  const lengths = keys.map(k => k.end - k.start);
+  const values = properties.map(p => p.value);
+
+  const newLines = values.map(v => v.loc.start.line < v.loc.end.line);
+  
+  const padding = Array(newLines.length);
+
+  let curr = 0;
+  let last = -1;
+  newLines.forEach((line, i) => {
+    if (line) {
+      for (let n = last+1; n <= Math.min(i, newLines.length); n++) padding[n] = curr;
+      curr = 0;
+      last = i;
+    } else {
+      const len = keys[i].end - keys[i].start + (properties[i].computed ? 2 : 0);
+      curr = len > curr ? len : curr;
+    }
+  });
+  if (last < newLines.length-1) for (let n = last+1; n < newLines.length; n++) padding[n] = curr;
+
+  return " ".repeat(padding[index] - nameLength - (parentNode.computed ? 2 : 0) + 1);
+
+  /*const lengths = keys.map(k => k.end - k.start);
   const maxLength = Math.max.apply(null, lengths);
   const padLength = maxLength - nameLength + 1;
-  const padding = " ".repeat(padLength);
+  const padding =  String(index) + " ".repeat(padLength);*/
 
-  return padding;
+  // return JSON.stringify(properties);
+  //return padding;
 }
 
 function genericPrint(path, options, printPath, args) {
@@ -1496,7 +1522,7 @@ function printPathNoParens(path, options, print, args) {
       } else {
         let printedLeft;
         if (n.computed) {
-          printedLeft = concat(["[", path.call(print, "key"), "]", path.call(getPropertyPadding.bind(null, options), "key").slice(2)]);
+          printedLeft = concat(["[", path.call(print, "key"), "]", path.call(getPropertyPadding.bind(null, options), "key")]);
         } else {
           printedLeft = concat([printPropertyKey(path, options, print), path.call(getPropertyPadding.bind(null, options), "key")]);
         }
