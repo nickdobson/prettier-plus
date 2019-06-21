@@ -9,7 +9,9 @@ o = {
   asdf:3,
   key:1,
   [key_long]: 'value',
-  test: () => 
-  "super long string to force a new line because................ I think that won't work like I want it to",
-  as:3
+  tests: () => 
+  "super long string to force a new line because I think that won't work like I want it to",
+  as:3,test: {
+    with: "lines"
 }
+};

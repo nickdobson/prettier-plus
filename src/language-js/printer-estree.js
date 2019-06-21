@@ -130,14 +130,12 @@ function getPropertyPadding(options, path) {
   }
 
   const nameLength = type === "Identifier"
-    ? (n.name.length) // + (n.computed ? 2 : 0))
+    ? n.name.length
     : type === "NumericLiteral"
         ? printNumber(n.extra.raw).length
         : type === "StringLiteral" ? nodeStr(n, options).length : undefined;
 
-  if (nameLength === undefined) {
-    return "";
-  }
+  if (nameLength === undefined) return "";
 
   const properties = parentObject.properties;
 
@@ -148,31 +146,24 @@ function getPropertyPadding(options, path) {
 
   const newLines = values.map(v => v.loc.start.line < v.loc.end.line);
   
-  const padding = Array(newLines.length);
+  const padding = [];
+  keys.forEach(() => padding.push(0));
 
   let curr = 0;
   let last = -1;
   newLines.forEach((line, i) => {
-    if (line) {
-      for (let n = last+1; n <= Math.min(i, newLines.length); n++) padding[n] = curr;
-      curr = 0;
-      last = i;
-    } else {
       const len = keys[i].end - keys[i].start + (properties[i].computed ? 2 : 0);
       curr = len > curr ? len : curr;
-    }
+      if (line) {
+        for (let n = last+1; n <= Math.min(i, newLines.length); n++) padding[n] = curr;
+        curr = 0;
+        last = i;
+      }
   });
+
   if (last < newLines.length-1) for (let n = last+1; n < newLines.length; n++) padding[n] = curr;
 
-  return " ".repeat(padding[index] - nameLength - (parentNode.computed ? 2 : 0) + 1);
-
-  /*const lengths = keys.map(k => k.end - k.start);
-  const maxLength = Math.max.apply(null, lengths);
-  const padLength = maxLength - nameLength + 1;
-  const padding =  String(index) + " ".repeat(padLength);*/
-
-  // return JSON.stringify(properties);
-  //return padding;
+  return " ".repeat((padding[index] || nameLength) - nameLength - (parentNode.computed ? 2 : 0) + 1);
 }
 
 function genericPrint(path, options, printPath, args) {
